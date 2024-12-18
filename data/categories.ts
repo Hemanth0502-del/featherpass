@@ -1,0 +1,43 @@
+const destinationCategories=[
+    {
+      title:"Alll",
+    },
+    {
+      title:"Mobile",
+      iconName:"mobile1"  
+    },
+    {
+        title:"Headphonee",
+        iconName:"customerservice"
+    },
+    {
+        title:"Camera",
+        iconName:"camera"
+    },
+    {
+        title:"Monitorr",
+        iconName:"iconfontdesktop"
+    },
+    {
+        title:"Tab",
+        iconName:"tablet1"
+    },
+    {
+        title:"Printerr",
+        iconName:"printer"
+    },
+    {
+        title:"AppleProductss",
+        iconName:"apple1"
+    },
+    {
+        title:"Otherss",
+        iconName:"earth"
+    },
+    {
+        title:"Comingsoonn",
+        iconName:"question"
+    },
+];
+
+export default destinationCategories;
