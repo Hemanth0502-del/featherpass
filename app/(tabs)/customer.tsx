@@ -14,8 +14,8 @@ interface Request {
 const Customer: React.FC = () => {
   const [itemName, setItemName] = useState('');
   const [country, setCountry] = useState('');
-  const [costInIndia, setCostInIndia] = useState(0);
-  const [costInOtherCountry, setCostInOtherCountry] = useState(0);
+ // const [costInIndia, setCostInIndia] = useState(0);
+ // const [costInOtherCountry, setCostInOtherCountry] = useState(0);
   const [websiteOrStore, setWebsiteOrStore] = useState('');
   const [moreInfo, setMoreInfo] = useState('');
 
@@ -59,8 +59,8 @@ const Customer: React.FC = () => {
       // Clear form
       setItemName('');
       setCountry('');
-      setCostInIndia(0);
-      setCostInOtherCountry(0);
+      //setCostInIndia(0);
+     // setCostInOtherCountry(0);
       setWebsiteOrStore('');
       setMoreInfo('');
 
