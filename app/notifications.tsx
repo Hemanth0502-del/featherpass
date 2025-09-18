@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
+import { REQUESTS_ENDPOINT } from '@/constants/Api';
 
 interface Request {
   itemName: string;
@@ -14,11 +14,16 @@ const Notifications: React.FC = () => {
 
   useEffect(() => {
     const fetchAcceptedRequests = async () => {
-      const storedRequests = await AsyncStorage.getItem('requests');
-      if (storedRequests) {
-        const requests: Request[] = JSON.parse(storedRequests);
+      try {
+        const response = await fetch(REQUESTS_ENDPOINT);
+        if (!response.ok) {
+          throw new Error('Failed to load notifications');
+        }
+        const requests: Request[] = await response.json();
         const accepted = requests.filter((req) => req.status === 'Accepted');
         setAcceptedRequests(accepted);
+      } catch (error) {
+        console.error('Error fetching notifications', error);
       }
     };
 

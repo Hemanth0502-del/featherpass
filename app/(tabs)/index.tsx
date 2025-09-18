@@ -14,11 +14,11 @@ import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import CategoryButtons from '@/components/CategoryButtons';
 import Listings from '@/components/Listings';
 import listingData from '@/data/destination.json';
+import { REQUESTS_ENDPOINT } from '@/constants/Api';
 
 const buyersData = [
   {
@@ -56,13 +56,16 @@ const Page = () => {
   }, []);
 
   const fetchNotifications = async () => {
-    const storedRequests = await AsyncStorage.getItem('requests');
-    if (storedRequests) {
-      const requests = JSON.parse(storedRequests);
-      const acceptedCount = requests.filter(
-        (req: any) => req.status === 'Accepted'
-      ).length;
+    try {
+      const response = await fetch(REQUESTS_ENDPOINT);
+      if (!response.ok) {
+        throw new Error('Failed to load notifications');
+      }
+      const requests: { status: string }[] = await response.json();
+      const acceptedCount = requests.filter((req) => req.status === 'Accepted').length;
       setNotifications(acceptedCount);
+    } catch (error) {
+      console.error('Error fetching notifications', error);
     }
   };
 

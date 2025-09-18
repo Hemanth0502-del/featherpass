@@ -10,7 +10,15 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Start the backend API
+
+   ```bash
+   npm run server
+   ```
+
+   The server listens on [http://localhost:3001](http://localhost:3001) by default and stores buyer requests in `server/data/requests.json`. Update `app.json` → `expo.extra.apiBaseUrl` if you need to point the mobile app at a different URL (for example, your LAN IP when testing on a physical device).
+
+3. Start the app
 
    ```bash
     npx expo start
