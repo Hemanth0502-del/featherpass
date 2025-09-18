@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, Alert, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, Alert, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import Colors from '@/constants/Colors';
+import { REQUESTS_ENDPOINT } from '@/constants/Api';
 
 interface Request {
+  id: string;
   itemName: string;
   country: string;
   websiteOrStore: string;
@@ -16,9 +17,16 @@ const Buyer: React.FC = () => {
 
   useEffect(() => {
     const fetchRequests = async () => {
-      const storedRequests = await AsyncStorage.getItem('requests');
-      if (storedRequests) {
-        setRequests(JSON.parse(storedRequests));
+      try {
+        const response = await fetch(REQUESTS_ENDPOINT);
+        if (!response.ok) {
+          throw new Error('Failed to load requests');
+        }
+        const data: Request[] = await response.json();
+        setRequests(data);
+      } catch (error) {
+        console.error('Error fetching requests', error);
+        Alert.alert('Unable to load requests. Please try again later.');
       }
     };
 
@@ -26,16 +34,31 @@ const Buyer: React.FC = () => {
   }, []);
 
   const handleAccept = async (index: number) => {
-    const updatedRequests = [...requests];
-    updatedRequests[index].status = 'Accepted';
+    try {
+      const request = requests[index];
+      const response = await fetch(`${REQUESTS_ENDPOINT}/${request.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'Accepted' }),
+      });
 
-    // Update requests in AsyncStorage
-    await AsyncStorage.setItem('requests', JSON.stringify(updatedRequests));
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorBody.error || 'Failed to update request.');
+      }
 
-    // Update state
-    setRequests(updatedRequests);
+      const updatedRequest: Request = await response.json();
+      const updatedRequests = [...requests];
+      updatedRequests[index] = updatedRequest;
+      setRequests(updatedRequests);
 
-    Alert.alert('Request accepted!');
+      Alert.alert('Request accepted!');
+    } catch (error) {
+      console.error('Error updating request', error);
+      Alert.alert('Unable to accept the request. Please try again later.');
+    }
   };
 
   return (

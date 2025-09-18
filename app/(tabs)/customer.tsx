@@ -1,15 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, Alert, StyleSheet, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
-
-interface Request {
-  itemName: string;
-  country: string;
-  websiteOrStore: string;
-  moreInfo: string;
-  status: string;
-}
+import { REQUESTS_ENDPOINT } from '@/constants/Api';
 
 const Customer: React.FC = () => {
   const [itemName, setItemName] = useState('');
@@ -19,42 +11,30 @@ const Customer: React.FC = () => {
   const [websiteOrStore, setWebsiteOrStore] = useState('');
   const [moreInfo, setMoreInfo] = useState('');
 
-  useEffect(() => {
-    const checkNotifications = async () => {
-      const storedNotifications = await AsyncStorage.getItem('notifications');
-      if (storedNotifications) {
-        const notifications = JSON.parse(storedNotifications);
-        notifications.forEach((notification: { message: string }) => {
-          Alert.alert('Notification', notification.message);
-        });
-
-        // Clear notifications after displaying
-        await AsyncStorage.removeItem('notifications');
-      }
-    };
-
-    checkNotifications();
-  }, []);
-
   const handleSubmit = async () => {
     try {
-      const newRequest: Request = {
-        itemName,
-        country,
-        websiteOrStore,
-        moreInfo,
-        status: 'Pending',
-      };
+      if (!itemName.trim() || !country.trim()) {
+        Alert.alert('Please enter both the item name and country.');
+        return;
+      }
 
-      // Retrieve existing requests
-      const storedRequests = await AsyncStorage.getItem('requests');
-      const requests = storedRequests ? JSON.parse(storedRequests) : [];
+      const response = await fetch(REQUESTS_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          itemName: itemName.trim(),
+          country: country.trim(),
+          websiteOrStore: websiteOrStore.trim(),
+          moreInfo: moreInfo.trim(),
+        }),
+      });
 
-      // Add new request
-      requests.push(newRequest);
-
-      // Save updated requests back to AsyncStorage
-      await AsyncStorage.setItem('requests', JSON.stringify(requests));
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorBody.error || 'Failed to submit request.');
+      }
 
       // Clear form
       setItemName('');
@@ -67,7 +47,9 @@ const Customer: React.FC = () => {
       Alert.alert('Request submitted successfully!');
     } catch (error) {
       console.error('Error saving request:', error);
-      Alert.alert('An error occurred while saving your request.');
+      const message =
+        error instanceof Error ? error.message : 'Please try again later.';
+      Alert.alert('Unable to submit request', message);
     }
   };
 

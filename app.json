@@ -40,7 +40,8 @@
       },
       "eas": {
         "projectId": "1b667a4d-420a-4661-b4db-95a59732962d"
-      }
+      },
+      "apiBaseUrl": "http://localhost:3001"
     }
   }
 }
